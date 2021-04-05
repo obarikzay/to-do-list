@@ -1,9 +1,22 @@
 import React, { useState } from "react";
 import './App.css'
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import Button from '@material-ui/core/Button';
+import AddIcon from '@material-ui/icons/Add'
 import {v4 as uuid} from "uuid"
-import CustomizedDialogs from './view/dialog'
+import Bar from './view/Bar'
+import CustomizedDialogs from './view/Dialog'
+import {firestore, firebase} from './configuration/firebase-config'
 
+ const fetchData = async (columnId) => {
+ const data = await firestore.doc(`columns/${columnId}`).get().then(function (snapshot){
+      if(snapshot.exists){
+          return snapshot.data()
+      }
+  })
+  console.log('data', data.items)
+  return data.items
+}
 const itemsFromBackend = [
   { id: uuid(), content: "First task" },
   { id: uuid(), content: "Second task" },
@@ -49,6 +62,11 @@ const onDragEnd = (result, columns, setColumns) => {
         items: destItems
       }
     });
+    firestore.doc(`columns/${destination.droppableId}`).update({items: destItems})
+
+    firestore.doc(`columns/${source.droppableId}`).update({items: sourceItems})
+
+
   } else {
     const column = columns[source.droppableId];
     const copiedItems = [...column.items];
@@ -61,12 +79,12 @@ const onDragEnd = (result, columns, setColumns) => {
         items: copiedItems
       }
     });
+    firestore.doc(`columns/${source.droppableId}`).update({items: copiedItems})
   }
 };
 
 const addItem = (columAddedTo, setColumns, text, setText) => {
 setColumns(prev =>{
-  console.log(prev.Col1)
  return{
    ...prev,
    Col1: {
@@ -80,20 +98,27 @@ setColumns(prev =>{
     ]
   }
  }
-  })
+})
+
+fetchData('Col1') //testing the fetch
   setText('')
 }
-
 function App() {
   const [columns, setColumns] = useState(columnsFromBackend);
   const [text, setText] = useState("")
   
   return (
-    <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>
-      <div>
+    <div>
+    <Bar/>    
+
+    <div>
         <input type="text" value={text} onChange={(e) => setText(e.target.value)}/>
-        <button onClick={result => addItem(columns, setColumns, text, setText)}>Add</button>
-      </div>      
+        <Button autoFocus onClick={result => addItem(columns, setColumns, text, setText)} color="secondary" variant="contained">
+        <AddIcon/>        
+        </Button>
+      </div>  
+  
+    <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>    
       <DragDropContext
         onDragEnd={result => onDragEnd(result, columns, setColumns)}
       >
@@ -166,6 +191,7 @@ function App() {
           );
         })}
       </DragDropContext>
+    </div>
     </div>
   );
 }
