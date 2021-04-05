@@ -12,7 +12,7 @@
 /build
 
 #firebase config
-src/firebase-config.js
+src/configuration/firebase-config.js
 
 # misc
 .DS_Store

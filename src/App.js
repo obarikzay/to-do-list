@@ -1,42 +1,173 @@
-import './App.css';
-import React, { Component } from 'react'
-import {firestore} from './firebase-config'
+import React, { useState } from "react";
+import './App.css'
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import {v4 as uuid} from "uuid"
+import CustomizedDialogs from './view/dialog'
 
+const itemsFromBackend = [
+  { id: uuid(), content: "First task" },
+  { id: uuid(), content: "Second task" },
+  { id: uuid(), content: "Third task" },
+  { id: uuid(), content: "Fourth task" },
+  { id: uuid(), content: "Fifth task" }
+];
 
-const docRef = firestore.doc("sample/test")
-
-export default class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      test: 0,
-    }
+const columnsFromBackend = {
+  ['Col1']: {
+    name: "To do",
+    items: itemsFromBackend
+  },
+  ['Col2']: {
+    name: "In Progress",
+    items: []
+  },
+  ['Col3']: {
+    name: "Done",
+    items: []
   }
+};
 
-incrementCountOne = () => {
-    this.setState({
-      test: this.state.test + 1
-    })
+const onDragEnd = (result, columns, setColumns) => {
+  if (!result.destination) return;
+  const { source, destination } = result;
 
-    docRef.set({
-      testData: this.state.test
-    }).then(value => {
-      console.log("Saved");
-
-    }).catch(error =>{
-
-      console.log("Error", error);
-
+  if (source.droppableId !== destination.droppableId) {
+    const sourceColumn = columns[source.droppableId];
+    const destColumn = columns[destination.droppableId];
+    const sourceItems = [...sourceColumn.items];
+    const destItems = [...destColumn.items];
+    const [removed] = sourceItems.splice(source.index, 1);
+    destItems.splice(destination.index, 0, removed);
+    setColumns({
+      ...columns,
+      [source.droppableId]: {
+        ...sourceColumn,
+        items: sourceItems
+      },
+      [destination.droppableId]: {
+        ...destColumn,
+        items: destItems
+      }
     });
- 
+  } else {
+    const column = columns[source.droppableId];
+    const copiedItems = [...column.items];
+    const [removed] = copiedItems.splice(source.index, 1);
+    copiedItems.splice(destination.index, 0, removed);
+    setColumns({
+      ...columns,
+      [source.droppableId]: {
+        ...column,
+        items: copiedItems
+      }
+    });
   }
+};
 
+const addItem = (columAddedTo, setColumns, text, setText) => {
+setColumns(prev =>{
+  console.log(prev.Col1)
+ return{
+   ...prev,
+   Col1: {
+    name: prev.Col1.name,
+    items: [
+      {
+        id: uuid(), 
+        content: text
+      },
+      ...prev.Col1.items
+    ]
+  }
+ }
+  })
+  setText('')
+}
 
-
-render() {
+function App() {
+  const [columns, setColumns] = useState(columnsFromBackend);
+  const [text, setText] = useState("")
+  
   return (
-    <button id="savebutton" onClick = {this.incrementCountOne}>Save buton</button>
+    <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>
+      <div>
+        <input type="text" value={text} onChange={(e) => setText(e.target.value)}/>
+        <button onClick={result => addItem(columns, setColumns, text, setText)}>Add</button>
+      </div>      
+      <DragDropContext
+        onDragEnd={result => onDragEnd(result, columns, setColumns)}
+      >
+        {Object.entries(columns).map(([columnId, column], index) => {
+          return (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center"
+              }}
+              key={columnId}
+            >
+              <h2>{column.name}</h2>
+              <div style={{ margin: 8 }}>
+                <Droppable droppableId={columnId} key={columnId}>
+                  {(provided, snapshot) => {
+                    return (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        style={{
+                          background: snapshot.isDraggingOver
+                            ? "pink"
+                            : "green",
+                          padding: 4,
+                          width: 250,
+                          minHeight: 500
+                        }}
+                      >
+                        {column.items.map((item, index) => {
+                          return (
+                            <Draggable
+                              key={item.id}
+                              draggableId={item.id}
+                              index={index}
+                            >
+                              {(provided, snapshot) => {
+                                return (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    style={{
+                                      userSelect: "none",
+                                      padding: 16,
+                                      margin: "0 0 8px 0",
+                                      minHeight: "50px",
+                                      backgroundColor: snapshot.isDragging
+                                        ? "brown"
+                                        : "blue",
+                                      color: "white",
+                                      ...provided.draggableProps.style
+                                    }}
+                                  >
+                                    {item.content}
+                                  </div>
+                                );
+                              }}
+                            </Draggable>
+                          );
+                        })}
+                        {provided.placeholder}
+                      </div>
+                    );
+                  }}
+                </Droppable>
+              </div>
+            </div>
+          );
+        })}
+      </DragDropContext>
+    </div>
+  );
+}
 
-    );
-  }
-} 
+export default App;
