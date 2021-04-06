@@ -1,12 +1,9 @@
 import React, { Component } from "react";
-import './App.css'
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { v4 as uuid } from "uuid"
 import Bar from './view/Bar'
 import { firestore, firebase } from './configuration/firebase-config'
-import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -165,11 +162,11 @@ export default class App extends Component {
                             ref={provided.innerRef}
                             style={{
                               background: snapshot.isDraggingOver
-                                ? "pink"
-                                : "green",
+                                ? "green"
+                                : "lightBlue",
                               padding: 4,
-                              width: 250,
-                              minHeight: 500
+                              width: 500,
+                              minHeight: 750
                             }}
                           >
                             {column.items.map((item, index) => {
@@ -192,7 +189,7 @@ export default class App extends Component {
                                           minHeight: "50px",
                                           backgroundColor: snapshot.isDragging
                                             ? "brown"
-                                            : "blue",
+                                            : "#222222",
                                           color: "white",
                                           ...provided.draggableProps.style
                                         }}
@@ -201,7 +198,7 @@ export default class App extends Component {
                                           <ListItemText
                                             primary={item.content}
                                           />
-                                          <IconButton onClick={() => this.handleDeleteTask(columnId, item.id)}>
+                                          <IconButton onClick={() => this.handleDeleteTask(columnId, item.id)}style={{color: "white"}}>
                                             <DeleteIcon />
                                           </IconButton>
 

@@ -101,15 +101,16 @@ export default class CustomizedDialogs extends Component {
               <TextField
                 autoFocus
                 multiline
-                rows="2"
+                rows="3"
                 margin="dense"
+                required 
                 id="text"
                 label="Task"
                 onChange={this.handleChange('text')}
               />
               <br />
               <FormControl>
-                <InputLabel id="ColumnID" >Progress</InputLabel>
+                <InputLabel required id="ColumnID" >Progress</InputLabel>
                 <Select
                   style={{ minWidth: 120 }}
                   id="columnAddedTo"
