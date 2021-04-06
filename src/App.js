@@ -7,6 +7,9 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ListItem from '@material-ui/core/ListItem';
 import Input from '@material-ui/core/Input';
+import Tooltip from '@material-ui/core/Tooltip';
+import Fade from '@material-ui/core/Fade';
+
 
 
 
@@ -220,6 +223,7 @@ export default class App extends Component {
                                         }}
                                       >
                                         <ListItem>
+                                        <Tooltip TransitionComponent={Fade} TransitionProps={{ timeout: 600 }} title="Click to start editing">
                                           <Input
                                             id='inputValue'
                                             onChange={this.handleEditTask(columnId, item.id)}
@@ -228,9 +232,10 @@ export default class App extends Component {
                                             fullWidth={true}
                                             multiline
                                             margin="dense"
-                                            style={{ color: "white" }}
+                                            style={{ color: "white"}}
 
                                           />
+                                         </Tooltip>
                                           <IconButton onClick={() => this.handleDeleteTask(columnId, item.id)} style={{ color: "white" }}>
                                             <DeleteIcon />
                                           </IconButton>
