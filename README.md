@@ -23,3 +23,6 @@ You will also see any lint errors in the console.
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
+### `work cited`
+Some of the code came from the tutorial [video](https://www.youtube.com/watch?v=Vqa9NMzF3wc)
+Rest of the code modification came from Material UI [Documentation](https://material-ui.com/) and Firebase [Documentation](https://firebase.google.com/docs)
