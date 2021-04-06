@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+import NativeSelect from '@material-ui/core/NativeSelect';
 
 
 const styles = (theme) => ({
@@ -92,7 +92,7 @@ export default class CustomizedDialogs extends Component {
         <Button variant="contained" color="secondary" onClick={this.handleToggle}>
           <AddIcon />
         </Button>
-        <Dialog onClose={this.handleToggle} aria-labelledby="customized-dialog-title" open={this.state.open}>
+        <Dialog onClose={this.handleToggle} aria-labelledby="customized-dialog-title" open={this.state.open} fullWidth={true}>
           <DialogTitle id="customized-dialog-title" onClose={this.handleToggle}>
             Add a task
         </DialogTitle>
@@ -101,6 +101,7 @@ export default class CustomizedDialogs extends Component {
               <TextField
                 autoFocus
                 multiline
+                fullWidth={true}
                 rows="3"
                 margin="dense"
                 required 
@@ -109,17 +110,17 @@ export default class CustomizedDialogs extends Component {
                 onChange={this.handleChange('text')}
               />
               <br />
-              <FormControl>
+              <FormControl fullWidth={true}>
                 <InputLabel required id="ColumnID" >Progress</InputLabel>
-                <Select
-                  style={{ minWidth: 120 }}
+                <NativeSelect
                   id="columnAddedTo"
                   onChange={this.handleChange('columnAddedTo')}
                 >
-                  <MenuItem value={'Col1'}>To Do</MenuItem>
-                  <MenuItem value={'Col2'}>In Progress</MenuItem>
-                  <MenuItem value={'Col3'}>Done</MenuItem>
-                </Select>
+                  <option aria-label="None" value="" />
+                  <option value={'Col1'}>To Do</option >
+                  <option value={'Col2'}>In Progress</option >
+                  <option value={'Col3'}>Done</option >
+                </NativeSelect>
               </FormControl>
             </form>
           </DialogContent>
