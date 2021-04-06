@@ -136,7 +136,6 @@ export default class App extends Component {
   }
 
   handleEditTask = (columnId, itemId) => ({ target: { value } }) => {
-    console.log(value)
 
     const updatedItems = this.state.columns[columnId].items.filter(ex => ex.id !== itemId)
 
@@ -193,8 +192,8 @@ export default class App extends Component {
                                 ? "green"
                                 : "lightBlue",
                               padding: 4,
-                              width: 500,
-                              minHeight: 750
+                              width: 400,
+                              minHeight: 580
                             }}
                           >
                             {column.items.map((item, index) => {
@@ -262,4 +261,3 @@ export default class App extends Component {
     )
   }
 }
-
