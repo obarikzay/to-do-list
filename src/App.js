@@ -1,128 +1,124 @@
-import React, { useState } from "react";
+import React, {Component } from "react";
 import './App.css'
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import Button from '@material-ui/core/Button';
-import AddIcon from '@material-ui/icons/Add'
 import {v4 as uuid} from "uuid"
 import Bar from './view/Bar'
-import CustomizedDialogs from './view/Dialog'
 import {firestore, firebase} from './configuration/firebase-config'
 
- const fetchData = async (columnId) => {
- const data = await firestore.doc(`columns/${columnId}`).get().then(function (snapshot){
-      if(snapshot.exists){
-          return snapshot.data()
-      }
-  })
-  console.log('data', data.items)
-  return data.items
-}
-const itemsFromBackend = [
-  { id: uuid(), content: "First task" },
-  { id: uuid(), content: "Second task" },
-  { id: uuid(), content: "Third task" },
-  { id: uuid(), content: "Fourth task" },
-  { id: uuid(), content: "Fifth task" }
-];
 
-const columnsFromBackend = {
-  ['Col1']: {
-    name: "To do",
-    items: itemsFromBackend
-  },
-  ['Col2']: {
-    name: "In Progress",
-    items: []
-  },
-  ['Col3']: {
-    name: "Done",
-    items: []
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      columns: {
+        Col1: {
+          name: "To do",
+          items: [{ id: uuid(), content: "First task" },
+          { id: uuid(), content: "Second task" }]
+        },
+        Col2: {
+          name: "In Progress",
+          items: []
+        },
+        Col3: {
+          name: "Done",
+          items: []
+        }
+      }
+    }
   }
-};
 
-const onDragEnd = (result, columns, setColumns) => {
-  if (!result.destination) return;
-  const { source, destination } = result;
+   fetchData = async (columnId) => {
+    const data = await firestore.doc(`columns/${columnId}`).get().then(function (snapshot){
+         if(snapshot.exists){
+             return snapshot.data()
+         }
+     })
+     console.log('data', data.items)
+     return data.items
+   }
+    
+   
+    onDragEnd = (result) => {
+     if (!result.destination) return;
+     const { source, destination } = result;
+   
+     if (source.droppableId !== destination.droppableId) {
+       const sourceColumn = this.state.columns[source.droppableId];
+       const destColumn = this.state.columns[destination.droppableId];
+       const sourceItems = [...sourceColumn.items];
+       const destItems = [...destColumn.items];
+       const [removed] = sourceItems.splice(source.index, 1);
+       destItems.splice(destination.index, 0, removed);
+       this.setState({
+         columns:{
+         ...this.state.columns,
+         [source.droppableId]: {
+           ...sourceColumn,
+           items: sourceItems
+         },
+         [destination.droppableId]: {
+           ...destColumn,
+           items: destItems
+         }
+        }
+       });
+       firestore.doc(`columns/${destination.droppableId}`).update({items: destItems})
+   
+       firestore.doc(`columns/${source.droppableId}`).update({items: sourceItems})
+   
+   
+     } else {
+       const column = this.state.columns[source.droppableId];
+       const copiedItems = [...column.items];
+       const [removed] = copiedItems.splice(source.index, 1);
+       copiedItems.splice(destination.index, 0, removed);
+       this.setState({
+        columns:{
+         ...this.state.columns,
+         [source.droppableId]: {
+           ...column,
+           items: copiedItems
+         }
+       }
+      });
+      console.log('new state', this.state.columns)
 
-  if (source.droppableId !== destination.droppableId) {
-    const sourceColumn = columns[source.droppableId];
-    const destColumn = columns[destination.droppableId];
-    const sourceItems = [...sourceColumn.items];
-    const destItems = [...destColumn.items];
-    const [removed] = sourceItems.splice(source.index, 1);
-    destItems.splice(destination.index, 0, removed);
-    setColumns({
-      ...columns,
-      [source.droppableId]: {
-        ...sourceColumn,
-        items: sourceItems
-      },
-      [destination.droppableId]: {
-        ...destColumn,
-        items: destItems
-      }
+       firestore.doc(`columns/${source.droppableId}`).update({items: copiedItems})
+     }
+   };
+   
+   handleTaskCreate =(task) => {
+    console.log('before state', this.state.columns)
+    this.setState({
+      columns:{
+       ...this.state.columns,
+       [task.columnAddedTo]: {
+         ...this.state.columns[task.columnAddedTo],
+         items: [
+          ...this.state.columns[task.columnAddedTo].items,
+           {id: uuid(), content: task.text }
+          ] 
+       }
+     }
     });
-    firestore.doc(`columns/${destination.droppableId}`).update({items: destItems})
 
-    firestore.doc(`columns/${source.droppableId}`).update({items: sourceItems})
+     console.log('after state', this.state.columns)
+   }
 
 
-  } else {
-    const column = columns[source.droppableId];
-    const copiedItems = [...column.items];
-    const [removed] = copiedItems.splice(source.index, 1);
-    copiedItems.splice(destination.index, 0, removed);
-    setColumns({
-      ...columns,
-      [source.droppableId]: {
-        ...column,
-        items: copiedItems
-      }
-    });
-    firestore.doc(`columns/${source.droppableId}`).update({items: copiedItems})
-  }
-};
 
-const addItem = (columAddedTo, setColumns, text, setText) => {
-setColumns(prev =>{
- return{
-   ...prev,
-   Col1: {
-    name: prev.Col1.name,
-    items: [
-      {
-        id: uuid(), 
-        content: text
-      },
-      ...prev.Col1.items
-    ]
-  }
- }
-})
-
-fetchData('Col1') //testing the fetch
-  setText('')
-}
-function App() {
-  const [columns, setColumns] = useState(columnsFromBackend);
-  const [text, setText] = useState("")
-  
-  return (
-    <div>
-    <Bar/>    
-
-    <div>
-        <input type="text" value={text} onChange={(e) => setText(e.target.value)}/>
-        <Button autoFocus onClick={result => addItem(columns, setColumns, text, setText)} color="secondary" variant="contained">
-        <AddIcon/>        
-        </Button>
-      </div>  
-  
+  render() {
+    return (
+<div>
+    <Bar
+    onTaskCreate = {this.handleTaskCreate}
+    />
     <div style={{ display: "flex", justifyContent: "center", height: "100%" }}>    
       <DragDropContext
-        onDragEnd={result => onDragEnd(result, columns, setColumns)}
+        onDragEnd={result => this.onDragEnd(result)}
       >
-        {Object.entries(columns).map(([columnId, column], index) => {
+        {Object.entries(this.state.columns).map(([columnId, column], index) => {
           return (
             <div
               style={{
@@ -193,7 +189,7 @@ function App() {
       </DragDropContext>
     </div>
     </div>
-  );
+    )
+  }
 }
 
-export default App;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -10,7 +10,10 @@ import MuiDialogActions from '@material-ui/core/DialogActions';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
-import {v4 as uuid} from "uuid"
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 
 const styles = (theme) => ({
@@ -53,39 +56,77 @@ const DialogActions = withStyles((theme) => ({
   },
 }))(MuiDialogActions);
 
-export default function CustomizedDialogs() {
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
+export default class CustomizedDialogs extends Component{
+  constructor(props) {
+    super(props)
+    this.state = {
+      open: false,
+    }
+  }
+  
+  handleToggle = (name) => {
+    this.setState({
+      open: !this.state.open,
+      task: {
+        text: '',
+        columnAddedTo: ''
+      }
+    })
   };
-  const handleClose = () => {
-    setOpen(false);
-  };
 
-  return (
+  handleChange = (prop) => ({target: {value} }) => {
+    this.setState({
+      task:{
+        ...this.state.task,
+        [prop]: value
+      }
+    })
+  }
+  handleSubmit = () => {
+    this.props.onCreateTask(this.state.task)
+  }
+  render(){
+    return(
     <div>
-      <Button variant="contained" color="secondary" onClick={handleClickOpen}>
+      <Button variant="contained" color="secondary" onClick={this.handleToggle}>
         <AddIcon/>
       </Button>
-      <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
-        <DialogTitle id="customized-dialog-title" onClose={handleClose}>
+      <Dialog onClose={this.handleToggle} aria-labelledby="customized-dialog-title" open={this.state.open}>
+        <DialogTitle id="customized-dialog-title" onClose={this.handleToggle}>
           Add a task
         </DialogTitle>
         <DialogContent dividers>
+        <form>
         <TextField
             autoFocus
+            multiline
+            rows = "2"
             margin="dense"
-            id="name"
+            id="text"
             label="Task"
+            onChange={this.handleChange('text')}
           />
+          <br/>
+           <FormControl>
+        <InputLabel id="ColumnID" >Progress</InputLabel>
+        <Select 
+          style={{ minWidth: 120}}
+          id="columnAddedTo"
+          onChange={this.handleChange('columnAddedTo')}
+        >
+          <MenuItem value={'Col1'}>To Do</MenuItem>
+          <MenuItem value={'Col2'}>In Progress</MenuItem>
+          <MenuItem value={'Col3'}>Done</MenuItem>
+        </Select>
+      </FormControl>
+          </form>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleClose} color="primary">
-            Save changes
+          <Button autoFocus onClick={this.handleSubmit} color="primary">
+          <AddIcon/>
           </Button>
         </DialogActions>
       </Dialog>
     </div>
-  );
+    )}
 }
