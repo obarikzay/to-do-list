@@ -56,14 +56,14 @@ const DialogActions = withStyles((theme) => ({
   },
 }))(MuiDialogActions);
 
-export default class CustomizedDialogs extends Component{
+export default class CustomizedDialogs extends Component {
   constructor(props) {
     super(props)
     this.state = {
       open: false,
     }
   }
-  
+
   handleToggle = () => {
     this.setState({
       open: !this.state.open,
@@ -74,9 +74,9 @@ export default class CustomizedDialogs extends Component{
     })
   };
 
-  handleChange = (prop) => ({target: {value} }) => {
+  handleChange = (prop) => ({ target: { value } }) => {
     this.setState({
-      task:{
+      task: {
         ...this.state.task,
         [prop]: value
       }
@@ -86,48 +86,49 @@ export default class CustomizedDialogs extends Component{
     this.props.onCreateTask(this.state.task)
     this.handleToggle()
   }
-  render(){
-    return(
-    <div>
-      <Button variant="contained" color="secondary" onClick={this.handleToggle}>
-        <AddIcon/>
-      </Button>
-      <Dialog onClose={this.handleToggle} aria-labelledby="customized-dialog-title" open={this.state.open}>
-        <DialogTitle id="customized-dialog-title" onClose={this.handleToggle}>
-          Add a task
+  render() {
+    return (
+      <div>
+        <Button variant="contained" color="secondary" onClick={this.handleToggle}>
+          <AddIcon />
+        </Button>
+        <Dialog onClose={this.handleToggle} aria-labelledby="customized-dialog-title" open={this.state.open}>
+          <DialogTitle id="customized-dialog-title" onClose={this.handleToggle}>
+            Add a task
         </DialogTitle>
-        <DialogContent dividers>
-        <form>
-        <TextField
-            autoFocus
-            multiline
-            rows = "2"
-            margin="dense"
-            id="text"
-            label="Task"
-            onChange={this.handleChange('text')}
-          />
-          <br/>
-           <FormControl>
-        <InputLabel id="ColumnID" >Progress</InputLabel>
-        <Select 
-          style={{ minWidth: 120}}
-          id="columnAddedTo"
-          onChange={this.handleChange('columnAddedTo')}
-        >
-          <MenuItem value={'Col1'}>To Do</MenuItem>
-          <MenuItem value={'Col2'}>In Progress</MenuItem>
-          <MenuItem value={'Col3'}>Done</MenuItem>
-        </Select>
-      </FormControl>
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={this.handleSubmit} color="primary">
-          <AddIcon/>
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-    )}
+          <DialogContent dividers>
+            <form>
+              <TextField
+                autoFocus
+                multiline
+                rows="2"
+                margin="dense"
+                id="text"
+                label="Task"
+                onChange={this.handleChange('text')}
+              />
+              <br />
+              <FormControl>
+                <InputLabel id="ColumnID" >Progress</InputLabel>
+                <Select
+                  style={{ minWidth: 120 }}
+                  id="columnAddedTo"
+                  onChange={this.handleChange('columnAddedTo')}
+                >
+                  <MenuItem value={'Col1'}>To Do</MenuItem>
+                  <MenuItem value={'Col2'}>In Progress</MenuItem>
+                  <MenuItem value={'Col3'}>Done</MenuItem>
+                </Select>
+              </FormControl>
+            </form>
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={this.handleSubmit} color="primary">
+              <AddIcon />
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    )
+  }
 }

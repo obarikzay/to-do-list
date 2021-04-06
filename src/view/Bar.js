@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import CustomizedDialogs  from './Dialog'
+import CustomizedDialogs from './Dialog'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function ButtonAppBar({onTaskCreate}) {
+export default function ButtonAppBar({ onTaskCreate }) {
   const classes = useStyles();
 
   return (
@@ -25,7 +25,7 @@ export default function ButtonAppBar({onTaskCreate}) {
             To-do List
           </Typography>
           <CustomizedDialogs
-          onCreateTask = {onTaskCreate}
+            onCreateTask={onTaskCreate}
           />
         </Toolbar>
       </AppBar>
