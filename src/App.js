@@ -13,8 +13,7 @@ export default class App extends Component {
       columns: {
         Col1: {
           name: "To do",
-          items: [{ id: uuid(), content: "First task" },
-          { id: uuid(), content: "Second task" }]
+          items: []
         },
         Col2: {
           name: "In Progress",
@@ -27,6 +26,19 @@ export default class App extends Component {
       }
     }
   }
+  async componentDidMount() {
+    const dataCol1 = await this.fetchData("Col1")
+    const dataCol2 = await this.fetchData("Col2")
+    const dataCol3 = await this.fetchData("Col3")
+    console.log(dataCol1)
+    this.setState({
+      columns:{
+        Col1: dataCol1,
+        Col2: dataCol2,
+        Col3: dataCol3
+      }
+    })
+  }
 
    fetchData = async (columnId) => {
     const data = await firestore.doc(`columns/${columnId}`).get().then(function (snapshot){
@@ -34,8 +46,7 @@ export default class App extends Component {
              return snapshot.data()
          }
      })
-     console.log('data', data.items)
-     return data.items
+     return data
    }
     
    
@@ -88,20 +99,21 @@ export default class App extends Component {
      }
    };
    
-   handleTaskCreate =(task) => {
-    console.log('before state', this.state.columns)
+   handleTaskCreate =(task) => { 
+     const newItems = [
+      ...this.state.columns[task.columnAddedTo].items,
+       {id: uuid(), content: task.text }] 
+
     this.setState({
       columns:{
        ...this.state.columns,
        [task.columnAddedTo]: {
          ...this.state.columns[task.columnAddedTo],
-         items: [
-          ...this.state.columns[task.columnAddedTo].items,
-           {id: uuid(), content: task.text }
-          ] 
+         items: newItems
        }
      }
     });
+    firestore.doc(`columns/${task.columnAddedTo}`).update({items: newItems})
 
      console.log('after state', this.state.columns)
    }

@@ -64,7 +64,7 @@ export default class CustomizedDialogs extends Component{
     }
   }
   
-  handleToggle = (name) => {
+  handleToggle = () => {
     this.setState({
       open: !this.state.open,
       task: {
@@ -84,6 +84,7 @@ export default class CustomizedDialogs extends Component{
   }
   handleSubmit = () => {
     this.props.onCreateTask(this.state.task)
+    this.handleToggle()
   }
   render(){
     return(
